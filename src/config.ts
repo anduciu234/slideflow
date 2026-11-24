@@ -48,3 +48,15 @@ export function writeJson(file: string, data: unknown) {
 
 export const id = (prefix: string) =>
   `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+/**
+ * Paths saved by older versions (or on another computer) are absolute. If one points
+ * inside some other ".../library/..." folder, map it onto this computer's library.
+ */
+export function relocate(p: string): string {
+  if (!p || p.startsWith(LIB + path.sep)) return p;
+  const i = p.lastIndexOf(`${path.sep}library${path.sep}`);
+  if (i < 0) return p;
+  const moved = path.join(LIB, p.slice(i + `${path.sep}library${path.sep}`.length));
+  return fs.existsSync(moved) ? moved : p;
+}

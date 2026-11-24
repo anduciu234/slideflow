@@ -199,6 +199,12 @@ http
         case "/api/cancel":
           if (POST) return json(res, cancel(q("id")));
           break;
+        case "/logo.png": {
+          const p = path.join(LIB, "..", "brand", "logo-1024.png");
+          if (!fs.existsSync(p)) return json(res, { error: "not found" }, 404);
+          res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "max-age=86400" });
+          return fs.createReadStream(p).pipe(res);
+        }
         case "/file": {
           const p = path.resolve(LIB, q("p"));
           const type = IMG[path.extname(p).toLowerCase()];

@@ -1,15 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
-import { id, PATHS, readJson, writeJson } from "./config.js";
+import { id, PATHS, readJson, relocate, writeJson } from "./config.js";
 import { renderSlides } from "./render/render.js";
 import type { Draft, SlideSpec } from "./types.js";
 
 const file = (draftId: string) => path.join(PATHS.drafts, `${draftId}.json`);
 
+const fixPaths = (d: Draft): Draft => ({ ...d, renders: d.renders.map(relocate) });
+
 export function getDraft(draftId: string): Draft {
   const d = readJson<Draft | null>(file(draftId), null);
   if (!d) throw new Error(`No draft ${draftId}`);
-  return d;
+  return fixPaths(d);
 }
 
 export function listDrafts(): Draft[] {
@@ -18,6 +20,7 @@ export function listDrafts(): Draft[] {
     .filter((f) => f.endsWith(".json"))
     .map((f) => readJson<Draft | null>(path.join(PATHS.drafts, f), null))
     .filter((d): d is Draft => !!d)
+    .map(fixPaths)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 

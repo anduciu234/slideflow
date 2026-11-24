@@ -3,150 +3,193 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>Slideflow</title>
 <style>
   :root {
-    --bg: #161615; --side: #121211; --panel: #1f1f1d; --panel2: #262624; --line: #2e2e2b; --hover: #2a2a27;
-    --text: #ecebe6; --muted: #8d8c86; --faint: #5f5e59; --good: #3fd17a; --warn: #f2c14e; --bad: #f2617a; --white: #f3f2ee;
+    --bg: #f5f5f7; --sidebar: rgba(236,236,240,.72); --card: #ffffff; --fill: rgba(118,118,128,.12); --fill2: rgba(118,118,128,.08);
+    --sep: rgba(60,60,67,.14); --text: #1d1d1f; --text2: #6e6e73; --text3: #a1a1a6;
+    --blue: #0071e3; --blue-h: #0077ed; --green: #34c759; --orange: #ff9f0a; --red: #ff3b30;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.05); --shadow-lg: 0 24px 60px rgba(0,0,0,.18);
+    --r: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000; --sidebar: rgba(28,28,30,.72); --card: #1c1c1e; --fill: rgba(118,118,128,.24); --fill2: rgba(118,118,128,.14);
+      --sep: rgba(84,84,88,.6); --text: #f5f5f7; --text2: #98989d; --text3: #636366;
+      --blue: #0a84ff; --blue-h: #409cff; --green: #30d158; --orange: #ff9f0a; --red: #ff453a;
+      --shadow: none; --shadow-lg: 0 24px 60px rgba(0,0,0,.6);
+    }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
-  body { background: var(--bg); color: var(--text); font: 13.5px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
-  button, input, select, textarea { font: inherit; color: inherit; }
-  a { color: inherit; }
-  .app { display: grid; grid-template-columns: 236px 1fr; height: 100vh; }
+  body { background: var(--bg); color: var(--text); font: 14px/1.43 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; letter-spacing: -.008em; -webkit-font-smoothing: antialiased; }
+  button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+  a { color: var(--blue); text-decoration: none; }
+  svg.i { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* sidebar */
-  aside { background: var(--side); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 16px 10px; }
-  .logo { font-weight: 700; letter-spacing: -.02em; font-size: 15px; padding: 2px 10px 18px; }
-  .logo span { color: var(--muted); font-weight: 500; }
-  .side-label { color: var(--faint); font-size: 11.5px; padding: 0 10px 6px; }
-  .app-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 8px; cursor: pointer; color: #d6d5cf; border: 0; background: none; width: 100%; text-align: left; }
-  .app-item:hover { background: var(--hover); }
-  .app-item.on { background: var(--panel2); color: var(--white); }
-  .app-item img, .app-item .ph { width: 20px; height: 20px; border-radius: 6px; object-fit: cover; flex: none; background: var(--panel2); }
-  .app-item .n { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .app-item .c { color: var(--faint); font-size: 11.5px; }
-  .add { color: var(--muted); margin-top: 4px; }
-  .side-foot { margin-top: auto; padding: 10px; color: var(--faint); font-size: 11.5px; line-height: 1.6; }
-  .side-foot b { color: var(--muted); font-weight: 600; }
+  .shell { display: grid; grid-template-columns: 248px 1fr; height: 100vh; }
+  /* sidebar: translucent, like macOS */
+  aside { background: var(--sidebar); backdrop-filter: saturate(180%) blur(30px); -webkit-backdrop-filter: saturate(180%) blur(30px); border-right: 1px solid var(--sep); padding: 18px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .brand { display: flex; align-items: center; gap: 8px; padding: 4px 10px 20px; font-weight: 600; font-size: 15px; letter-spacing: -.02em; }
+  .brand img { width: 22px; height: 22px; border-radius: 6px; }
+  .group { color: var(--text3); font-size: 11px; font-weight: 600; letter-spacing: .02em; padding: 10px 10px 6px; }
+  .nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 10px; border: 0; background: none; border-radius: 8px; text-align: left; cursor: default; }
+  .nav:hover { background: var(--fill2); }
+  .nav.on { background: var(--fill); font-weight: 600; }
+  .nav img, .nav .ph { width: 22px; height: 22px; border-radius: 6px; object-fit: cover; flex: none; background: var(--fill); }
+  .nav .n { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav .badge { font-size: 11px; color: var(--text2); background: var(--fill); border-radius: 10px; padding: 0 7px; line-height: 18px; }
+  .nav.add { color: var(--blue); }
+  .nav.add .ph { background: none; display: grid; place-items: center; }
+  .foot { margin-top: auto; padding: 10px; font-size: 12px; color: var(--text2); line-height: 1.5; }
 
-  /* main */
   main { overflow-y: auto; }
-  .wrap { max-width: 1060px; margin: 0 auto; padding: 26px 32px 80px; }
-  .head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-  .head img, .head .ph { width: 44px; height: 44px; border-radius: 11px; object-fit: cover; background: var(--panel2); }
-  .head h1 { font-size: 19px; letter-spacing: -.02em; font-weight: 650; }
-  .head p { color: var(--muted); max-width: 640px; }
-  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
-  .tabs button { background: none; border: 0; padding: 9px 12px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
-  .tabs button.on { color: var(--white); border-color: var(--white); }
-  h2 { font-size: 14px; font-weight: 600; margin: 4px 0 12px; display: flex; align-items: center; gap: 10px; }
+  .page { max-width: 1040px; margin: 0 auto; padding: 34px 40px 90px; }
+  .title { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+  .title img, .title .ph { width: 56px; height: 56px; border-radius: 13px; object-fit: cover; background: var(--fill); box-shadow: 0 0 0 .5px var(--sep); }
+  .title h1 { font-size: 30px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
+  .title p { color: var(--text2); margin-top: 4px; font-size: 14px; }
+
+  /* segmented control */
+  .seg { display: inline-flex; background: var(--fill); border-radius: 9px; padding: 2px; margin-bottom: 28px; }
+  .seg button { border: 0; background: none; padding: 5px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--text); cursor: default; }
+  .seg button.on { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04); }
+  @media (prefers-color-scheme: dark) { .seg button.on { background: #636366; } }
+
+  h2 { font-size: 20px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 12px; display: flex; align-items: baseline; gap: 12px; }
+  h2 .sub { font-size: 13px; color: var(--text2); font-weight: 400; letter-spacing: 0; }
   h2 .sp { flex: 1; }
-  .muted { color: var(--muted); }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-  .grid { display: grid; gap: 14px; }
-  .g2 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .sec { margin-bottom: 30px; }
+  .sec { margin-bottom: 40px; }
+  .muted { color: var(--text2); }
+  .small { font-size: 12px; }
 
-  .btn { background: var(--white); color: #121211; border: 0; border-radius: 9px; padding: 7px 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .btn:disabled { opacity: .45; cursor: not-allowed; }
-  .btn.ghost { background: var(--panel2); color: var(--text); border: 1px solid var(--line); font-weight: 500; }
-  .btn.sm { padding: 5px 10px; font-size: 12.5px; }
-  .btn.ok { background: rgba(63,209,122,.14); color: var(--good); border: 0; }
+  .card { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); padding: 18px; }
+  @media (prefers-color-scheme: dark) { .card { box-shadow: 0 0 0 .5px var(--sep) inset; } }
 
-  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
-  .kpi .v { font-size: 20px; font-weight: 650; letter-spacing: -.02em; }
-  .kpi .l { color: var(--muted); font-size: 12px; }
+  /* inset grouped list */
+  .list { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+  @media (prefers-color-scheme: dark) { .list { box-shadow: 0 0 0 .5px var(--sep) inset; } }
+  .li { display: flex; align-items: center; gap: 12px; padding: 11px 16px; min-height: 52px; position: relative; }
+  .li + .li::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--sep); }
+  .li .main { flex: 1; min-width: 0; }
+  .li .t { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .li .s { color: var(--text2); font-size: 12.5px; display: flex; align-items: center; gap: 6px; }
+  .li img.th { width: 34px; height: 44px; border-radius: 6px; object-fit: cover; flex: none; background: var(--fill); }
+  .li .tm { width: 54px; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .li.open { color: var(--text3); }
+  .li-head { color: var(--text2); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; margin: 20px 16px 7px; }
 
-  /* slideshow previews (3-up, like the reference) */
-  .slides { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
-  .slides img { width: 100%; border-radius: 10px; display: block; object-fit: cover; background: var(--panel2); cursor: zoom-in; }
-  .ss-title { font-weight: 600; margin-bottom: 4px; }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; }
-  .chip { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
-  .chip.g { color: var(--good); background: rgba(63,209,122,.1); border-color: transparent; }
-  .chip.y { color: var(--warn); background: rgba(242,193,78,.1); border-color: transparent; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex: none; }
+  .dot.o { background: var(--orange); } .dot.r { background: var(--red); } .dot.n { background: var(--text3); }
 
-  /* status cards (green dot) */
-  .status { display: flex; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 8px 10px; min-width: 0; }
-  .status img { width: 30px; height: 38px; object-fit: cover; border-radius: 6px; flex: none; }
-  .status .t { font-weight: 600; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .status .s { color: var(--muted); font-size: 11.5px; display: flex; align-items: center; gap: 6px; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--good); flex: none; }
-  .dot.y { background: var(--warn); } .dot.r { background: var(--bad); } .dot.n { background: var(--faint); }
-  .statuses { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; background: var(--blue); color: #fff; border: 0; border-radius: 980px; padding: 7px 16px; font-size: 13px; font-weight: 500; cursor: default; white-space: nowrap; }
+  .btn:hover { background: var(--blue-h); }
+  .btn:disabled { opacity: .35; }
+  .btn.gray { background: var(--fill); color: var(--text); }
+  .btn.gray:hover { background: var(--fill); filter: brightness(.96); }
+  .btn.plain { background: none; color: var(--blue); padding: 7px 6px; }
+  .btn.sm { padding: 5px 12px; font-size: 12.5px; }
+  .btn.ok { background: rgba(52,199,89,.14); color: var(--green); }
 
-  .day { color: var(--faint); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin: 16px 0 6px; }
-  .slot { display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); margin-bottom: 6px; }
-  .slot.empty { border-style: dashed; background: none; color: var(--faint); }
-  .slot .tm { width: 48px; font-weight: 600; }
-  .slot img { width: 28px; height: 36px; object-fit: cover; border-radius: 5px; }
-  .slot .t { flex: 1; min-width: 0; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .kpi { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); padding: 16px 18px; }
+  @media (prefers-color-scheme: dark) { .kpi { box-shadow: 0 0 0 .5px var(--sep) inset; } }
+  .kpi .l { color: var(--text2); font-size: 12.5px; }
+  .kpi .v { font-size: 26px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin-top: 2px; }
 
-  label.f { display: flex; flex-direction: column; gap: 5px; color: var(--muted); font-size: 12px; }
-  input[type=text], input[type=url], input[type=datetime-local], select, textarea { background: var(--panel2); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; color: var(--text); width: 100%; }
-  textarea { min-height: 70px; resize: vertical; }
-  .form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .ss { padding: 14px; }
+  .slides { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 14px; }
+  .slides img { width: 100%; border-radius: 8px; display: block; object-fit: cover; background: var(--fill); }
+  .ss .t { font-weight: 600; font-size: 15px; letter-spacing: -.015em; margin-bottom: 3px; }
+  .ss .m { color: var(--text2); font-size: 12.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .tag { font-size: 11.5px; font-weight: 500; color: var(--text2); }
+  .pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--fill); color: var(--text2); }
+  .pill.g { background: rgba(52,199,89,.14); color: var(--green); }
+  .pill.o { background: rgba(255,159,10,.14); color: var(--orange); }
+
+  /* forms */
+  .field { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--text2); }
+  input[type=text], input[type=url], input[type=datetime-local], select, textarea { width: 100%; background: var(--card); color: var(--text); border: .5px solid var(--sep); box-shadow: inset 0 0 0 .5px var(--sep); border-radius: 8px; padding: 8px 10px; font-size: 14px; outline: none; }
+  @media (prefers-color-scheme: dark) { input[type=text], input[type=url], input[type=datetime-local], select, textarea { background: var(--fill2); } }
+  input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3.5px rgba(0,113,227,.28); border-color: var(--blue); }
+  textarea { min-height: 76px; resize: vertical; line-height: 1.45; }
+  .form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .form .full { grid-column: 1 / -1; }
-  .check { display: flex; gap: 8px; align-items: center; color: var(--text); font-size: 13px; }
-  .check.dis { opacity: .45; }
+  .check { display: flex; align-items: center; gap: 9px; font-size: 14px; color: var(--text); }
+  .check.dis { opacity: .4; }
+  input[type=checkbox] { accent-color: var(--blue); width: 16px; height: 16px; }
+  /* iOS switch */
+  .switch { position: relative; width: 42px; height: 26px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .switch span { position: absolute; inset: 0; background: var(--fill); border-radius: 26px; transition: background .2s; }
+  .switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; background: #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .2s; }
+  .switch input:checked + span { background: var(--green); }
+  .switch input:checked + span::after { transform: translateX(16px); }
 
-  .posts { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
-  .post { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; text-decoration: none; }
-  .post img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; background: var(--panel2); }
-  .post .s { padding: 6px 8px; font-size: 11.5px; color: var(--muted); }
-  .post .s b { color: var(--text); font-size: 13px; }
-  .bars { display: flex; align-items: end; gap: 2px; height: 70px; margin: 10px 0 14px; }
-  .bars i { flex: 1; background: #3a3a36; border-radius: 2px 2px 0 0; min-height: 2px; }
-  .bars i.us { background: var(--white); }
+  .posts { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+  .post { display: block; color: inherit; }
+  .post img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 10px; display: block; background: var(--fill); }
+  .post .s { font-size: 12px; color: var(--text2); padding: 6px 2px; }
+  .post .s b { color: var(--text); font-weight: 600; font-size: 13px; }
+  .chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; margin: 18px 0 8px; }
+  .chart i { flex: 1; background: var(--fill); border-radius: 3px 3px 0 0; min-height: 3px; }
+  .chart i.us { background: var(--blue); }
 
-  .comp { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
-  .comp:last-child { border: 0; }
-  .comp .n { font-weight: 600; } .comp .m { color: var(--muted); font-size: 12px; }
-  .empty { color: var(--faint); text-align: center; padding: 34px 10px; }
-  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--white); color: #121211; padding: 9px 14px; border-radius: 10px; font-weight: 600; display: none; z-index: 50; }
-  .toast.err { background: var(--bad); color: #fff; }
+  .empty { color: var(--text2); text-align: center; padding: 44px 16px; }
+  .empty b { color: var(--text); }
 
-  /* modal */
-  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; z-index: 40; }
-  .modal.on { display: flex; }
-  .sheet { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; width: 100%; max-width: 640px; padding: 20px; }
-  .sheet h3 { font-size: 16px; margin-bottom: 4px; }
-  .strip { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px; }
-  .strip img { height: 150px; border-radius: 8px; }
-  .note { color: var(--muted); font-size: 12px; background: var(--panel2); border-radius: 9px; padding: 9px 11px; }
-  .legal { font-size: 12px; color: var(--muted); }
-  .legal a { color: var(--text); }
-  hr { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
-  @media (max-width: 760px) { .app { grid-template-columns: 1fr; } aside { display: none; } .form { grid-template-columns: 1fr; } .wrap { padding: 18px 16px 60px; } }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+  .compare .lbl { font-size: 12px; color: var(--text2); margin-bottom: 7px; font-weight: 500; }
+  .compare img.sheet { width: 100%; border-radius: 10px; display: block; }
+
+  .note { background: var(--fill2); border-radius: 10px; padding: 10px 12px; color: var(--text2); font-size: 12.5px; line-height: 1.5; }
+
+  /* sheet (modal) */
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.28); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none; align-items: flex-start; justify-content: center; padding: 48px 16px; overflow-y: auto; z-index: 40; }
+  .scrim.on { display: flex; }
+  .sheet { background: var(--card); border-radius: 16px; width: 100%; max-width: 620px; box-shadow: var(--shadow-lg); overflow: hidden; }
+  .sheet .hd { padding: 18px 22px 12px; }
+  .sheet .hd h3 { font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+  .sheet .bd { padding: 4px 22px 18px; }
+  .sheet .ft { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 22px; border-top: .5px solid var(--sep); background: var(--fill2); }
+  .strip { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 14px; }
+  .strip img { height: 140px; border-radius: 8px; }
+  .legal { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  hr { border: 0; border-top: .5px solid var(--sep); margin: 16px 0; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); opacity: 0; background: rgba(30,30,32,.92); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 500; backdrop-filter: blur(20px); transition: all .25s; pointer-events: none; z-index: 60; max-width: 90vw; }
+  .toast.on { opacity: 1; transform: translateX(-50%); }
+  .toast.err { background: var(--red); }
+  @media (max-width: 780px) { .shell { grid-template-columns: 1fr; } aside { display: none; } .page { padding: 22px 16px 70px; } .form, .compare { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-<div class="app">
+<div class="shell">
   <aside>
-    <div class="logo">slideflow <span>studio</span></div>
-    <div class="side-label">Apps</div>
+    <div class="brand"><img src="/logo.png" onerror="this.remove()" alt="">Slideflow</div>
+    <div class="group">Apps</div>
     <div id="appList"></div>
-    <button class="app-item add" id="addApp"><span class="ph" style="display:grid;place-items:center">+</span><span class="n">Add app</span></button>
-    <div class="side-foot" id="sideFoot"></div>
+    <button class="nav add" id="addApp"><span class="ph"><svg class="i" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span><span class="n">Add App</span></button>
+    <div class="foot" id="foot"></div>
   </aside>
-  <main><div class="wrap" id="view"><div class="empty">Loading…</div></div></main>
+  <main><div class="page" id="view"><div class="empty">Loading…</div></div></main>
 </div>
-
-<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const fmt = (n) => n == null ? "—" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e4 ? Math.round(n / 1e3) + "k" : n >= 1e3 ? (n / 1e3).toFixed(1) + "k" : String(n);
+const fmt = (n) => n == null ? "—" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e4 ? Math.round(n / 1e3) + "K" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : String(n);
 const file = (p) => p ? "/file?p=" + encodeURIComponent(p) : "";
 const img = (u) => !u ? "" : /^https?:/.test(u) ? (/tiktokcdn|mzstatic/.test(u) ? "/img?u=" + encodeURIComponent(u) : u) : file(u);
-const iconHtml = (a, cls = "") => a?.icon ? `<img class="${cls}" src="${esc(img(a.icon))}" alt="">` : `<span class="ph ${cls}"></span>`;
-function toast(msg, err) { const t = $("#toast"); t.textContent = msg; t.className = "toast" + (err ? " err" : ""); t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", 3200); }
+const icon = (a, cls = "") => a?.icon ? `<img class="${cls}" src="${esc(img(a.icon))}" alt="">` : `<span class="ph ${cls}"></span>`;
+const ratio = (d) => d.aspect === "3:4" ? "3/4" : "9/16";
+function toast(msg, err) { const t = $("#toast"); t.textContent = msg; t.className = "toast on" + (err ? " err" : ""); clearTimeout(t._h); t._h = setTimeout(() => t.className = "toast", 3400); }
 async function api(url, data) {
   const r = await fetch(url, data === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
   const j = await r.json(); if (!r.ok) throw new Error(j.error || r.statusText); return j;
@@ -154,269 +197,263 @@ async function api(url, data) {
 const state = { apps: [], slug: null, tab: "overview", view: null };
 try { Object.assign(state, JSON.parse(localStorage.getItem("sf") || "{}")); } catch {}
 const persist = () => { try { localStorage.setItem("sf", JSON.stringify({ slug: state.slug, tab: state.tab })); } catch {} };
-
 const tz = () => state.view?.timezone || "Europe/London";
 const when = (iso) => {
-  const d = new Date(iso), now = new Date();
-  const day = (x) => x.toLocaleDateString("en-GB", { timeZone: tz() });
+  const d = new Date(iso), now = new Date(), day = (x) => x.toLocaleDateString("en-GB", { timeZone: tz() });
   const t = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: tz() });
-  if (day(d) === day(now)) return `today, ${t}`;
-  if (day(d) === day(new Date(now.getTime() + 864e5))) return `tomorrow, ${t}`;
+  if (day(d) === day(now)) return `Today ${t}`;
+  if (day(d) === day(new Date(now.getTime() + 864e5))) return `Tomorrow ${t}`;
   return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: tz() }) + ", " + t;
 };
-const statusText = (q) => q.status === "queued" ? ["", `Scheduled for ${when(q.at || q.scheduledAt)}`] : q.status === "done" ? ["", q.mode === "draft" ? "In TikTok inbox" : "Posted"] : q.status === "failed" ? ["r", "Failed" + (q.error ? ": " + q.error.slice(0, 60) : "")] : q.status === "cancelled" ? ["n", "Cancelled"] : ["y", q.status === "processing" ? "TikTok is processing" : "Uploading"];
+const status = (q) => q.status === "queued" ? ["", `Scheduled · ${when(q.at || q.scheduledAt)}`] : q.status === "done" ? ["", q.mode === "draft" ? "In TikTok inbox" : "Posted"] : q.status === "failed" ? ["r", "Failed" + (q.error ? ` · ${q.error.slice(0, 60)}` : "")] : q.status === "cancelled" ? ["n", "Cancelled"] : ["o", q.status === "processing" ? "Processing" : "Uploading"];
 
 // ---------- sidebar ----------
 async function loadApps() {
-  const j = await api("/api/apps"); state.apps = j.apps; state.questions = j.questions;
+  const j = await api("/api/apps"); state.apps = j.apps;
   if (!state.apps.find((a) => a.slug === state.slug)) state.slug = state.apps[0]?.slug ?? null;
-  $("#appList").innerHTML = state.apps.map((a) => `<button class="app-item ${a.slug === state.slug ? "on" : ""}" data-app="${esc(a.slug)}">${iconHtml(a)}<span class="n">${esc(a.name.split(":")[0])}</span>${a.upcoming ? `<span class="c">${a.upcoming}</span>` : ""}</button>`).join("");
-  $("#sideFoot").innerHTML = `Research spend (30d) <b>$${j.spend.estUsd.toFixed(2)}</b><br>${j.spend.runs} research runs`;
+  $("#appList").innerHTML = state.apps.map((a) => `<button class="nav ${a.slug === state.slug ? "on" : ""}" data-app="${esc(a.slug)}">${icon(a)}<span class="n">${esc(a.name.split(":")[0])}</span>${a.upcoming ? `<span class="badge">${a.upcoming}</span>` : ""}</button>`).join("");
+  $("#foot").innerHTML = `Research this month<br><span style="color:var(--text)">$${j.spend.estUsd.toFixed(2)}</span> · ${j.spend.runs} runs`;
 }
 document.addEventListener("click", (e) => {
   const a = e.target.closest("[data-app]"); if (a) { state.slug = a.dataset.app; state.tab = "overview"; persist(); refresh(); }
   const t = e.target.closest("[data-tab]"); if (t) { state.tab = t.dataset.tab; persist(); render(); }
-  const z = e.target.closest(".slides img, [data-zoom]"); if (z) window.open(z.src, "_blank");
+  const z = e.target.closest(".slides img, img.sheet"); if (z) window.open(z.src, "_blank");
 });
 $("#addApp").onclick = () => openAddApp();
 
 async function refresh() {
   await loadApps();
-  if (!state.slug) { $("#view").innerHTML = `<div class="empty">No apps yet. <button class="btn" onclick="openAddApp()">Add your first app</button></div>`; return; }
+  if (!state.slug) { $("#view").innerHTML = `<div class="empty"><b>No apps yet</b><br><br><button class="btn" onclick="openAddApp()">Add Your First App</button></div>`; return; }
   state.view = await api("/api/app?slug=" + encodeURIComponent(state.slug));
   render();
 }
 
-// ---------- views ----------
 const TABS = [["overview", "Overview"], ["slideshows", "Slideshows"], ["formats", "Formats"], ["schedule", "Schedule"], ["accounts", "Accounts"], ["profile", "Profile"]];
 function render() {
-  const v = state.view, a = v.app;
+  const a = state.view.app;
   $("#view").innerHTML = `
-    <div class="head">${iconHtml(a)}<div><h1>${esc(a.name)}</h1><p>${esc(a.oneLiner || "Add a one-line description in Profile.")}</p></div></div>
-    <div class="tabs">${TABS.map(([k, l]) => `<button data-tab="${k}" class="${state.tab === k ? "on" : ""}">${l}</button>`).join("")}</div>
+    <div class="title">${icon(a)}<div><h1>${esc(a.name.split(":")[0])}</h1><p>${esc(a.oneLiner || "Add a one-line description in Profile.")}</p></div></div>
+    <div class="seg">${TABS.map(([k, l]) => `<button data-tab="${k}" class="${state.tab === k ? "on" : ""}">${l}</button>`).join("")}</div>
     <div id="tab"></div>`;
   ({ overview, slideshows, formats, schedule, accounts, profile })[state.tab]();
 }
 
-function slideshowCard(d, opts = {}) {
+function card(d) {
   const q = d.queue?.find((x) => x.status !== "cancelled");
-  const [cls, txt] = q ? statusText(q) : [];
-  return `<div class="card">
-    <div class="slides">${d.previews.map((p) => `<img src="${file(p)}" style="aspect-ratio:${d.aspect === "3:4" ? "3/4" : "9/16"}" alt="">`).join("")}</div>
-    <div class="ss-title">${esc(d.title)}</div>
-    <div class="chips">${d.format ? `<span class="chip">${esc(d.format)}</span>` : ""}<span class="chip">${d.slides} slides</span>${d.approved ? `<span class="chip g">Approved</span>` : ""}${q ? `<span class="chip ${cls === "r" ? "" : "g"}">${esc(txt)}</span>` : ""}</div>
-    <div class="row"><button class="btn sm" data-post="${esc(d.id)}">Post or schedule…</button>
-    <button class="btn sm ${d.approved ? "ok" : "ghost"}" data-approve="${esc(d.id)}" data-v="${d.approved ? 0 : 1}">${d.approved ? "✓ Approved for autopilot" : "Approve for autopilot"}</button></div>
+  const [c, s] = q ? status(q) : [];
+  return `<div class="card ss">
+    <div class="slides">${d.previews.map((p) => `<img src="${file(p)}" style="aspect-ratio:${ratio(d)}" alt="">`).join("")}</div>
+    <div class="t">${esc(d.title)}</div>
+    <div class="m">${d.slides} slides${d.format ? ` · ${esc(d.format.replace(/-/g, " "))}` : ""}${q ? ` · <span class="dot ${c}"></span>${esc(s)}` : d.approved ? ` · <span class="dot"></span>Approved` : ""}</div>
+    <div class="row"><button class="btn sm" data-post="${esc(d.id)}">Post…</button>
+      <button class="btn sm ${d.approved ? "ok" : "gray"}" data-approve="${esc(d.id)}" data-v="${d.approved ? 0 : 1}">${d.approved ? "Approved" : "Approve"}</button></div>
   </div>`;
 }
-function bindCards(el) {
+function bind(el) {
   el.querySelectorAll("[data-approve]").forEach((b) => b.onclick = async () => { try { await api(`/api/approve?draft=${b.dataset.approve}&v=${b.dataset.v}`, {}); await refresh(); } catch (e) { toast(e.message, 1); } });
   el.querySelectorAll("[data-post]").forEach((b) => b.onclick = () => openPost(b.dataset.post));
   el.querySelectorAll("[data-cancel]").forEach((b) => b.onclick = async () => { try { await api("/api/cancel?id=" + b.dataset.cancel, {}); await refresh(); toast("Cancelled"); } catch (e) { toast(e.message, 1); } });
 }
+const rowStatus = (title, thumb, c, s, extra = "") => `<div class="li"><img class="th" src="${file(thumb)}" alt=""><div class="main"><div class="t">${esc(title)}</div><div class="s"><span class="dot ${c}"></span>${esc(s)}</div></div>${extra}</div>`;
 
 function overview() {
   const v = state.view, el = $("#tab");
-  const stats = v.accounts.map((x) => x.stats).filter(Boolean);
-  const posts = stats.flatMap((s) => s.posts || []);
+  const stats = v.accounts.map((x) => x.stats).filter(Boolean), posts = stats.flatMap((s) => s.posts || []);
   const views = posts.reduce((n, p) => n + p.views, 0);
-  const upcoming = Object.entries(v.schedule).flatMap(([acc, slots]) => slots.filter((s) => s.item).map((s) => ({ ...s, acc }))).slice(0, 6);
+  const upcoming = Object.entries(v.schedule).flatMap(([acc, sl]) => sl.filter((s) => s.item).map((s) => ({ ...s, acc }))).slice(0, 6);
   const empty = Object.values(v.schedule).flat().filter((s) => !s.item).length;
   const waiting = v.drafts.filter((d) => d.approved && !d.queue.some((q) => q.status !== "cancelled")).length;
   el.innerHTML = `
     <div class="kpis sec">
-      <div class="kpi"><div class="v">${fmt(stats.reduce((n, s) => n + (s.profile?.followers || 0), 0))}</div><div class="l">Followers</div></div>
-      <div class="kpi"><div class="v">${fmt(views)}</div><div class="l">Views (${posts.length} posts)</div></div>
-      <div class="kpi"><div class="v">${fmt(posts.length ? Math.round(views / posts.length) : null)}</div><div class="l">Avg views / post</div></div>
-      <div class="kpi"><div class="v">${v.drafts.length}</div><div class="l">Slideshows</div></div>
-      <div class="kpi"><div class="v">${upcoming.length}</div><div class="l">Scheduled</div></div>
+      <div class="kpi"><div class="l">Followers</div><div class="v">${fmt(stats.reduce((n, s) => n + (s.profile?.followers || 0), 0))}</div></div>
+      <div class="kpi"><div class="l">Views</div><div class="v">${fmt(views)}</div></div>
+      <div class="kpi"><div class="l">Average per post</div><div class="v">${fmt(posts.length ? Math.round(views / posts.length) : null)}</div></div>
+      <div class="kpi"><div class="l">Slideshows</div><div class="v">${v.drafts.length}</div></div>
     </div>
-    <div class="sec"><h2>Up next<span class="sp"></span><span class="muted" style="font-weight:400">${waiting} approved waiting · ${empty} empty slots</span><button class="btn sm" id="scheduleAll" ${waiting ? "" : "disabled"}>Schedule all approved</button></h2>
-      ${upcoming.length ? `<div class="statuses">${upcoming.map((s) => `<div class="status"><img src="${file(s.item.draft.previews[0])}" alt=""><div style="min-width:0"><div class="t">${esc(s.item.draft.title)}</div><div class="s"><span class="dot"></span>Scheduled for ${when(s.at)} · ${esc(s.acc)}</div></div></div>`).join("")}</div>` : `<div class="card empty">Nothing scheduled. Approve slideshows, then press <b>Schedule all approved</b>.</div>`}
-    </div>
-    ${v.recent.length ? `<div class="sec"><h2>Recent</h2><div class="statuses">${v.recent.map((q) => { const [c, t] = statusText(q); return `<div class="status"><img src="${file(q.draft.previews[0])}" alt=""><div style="min-width:0"><div class="t">${esc(q.draft.title)}</div><div class="s"><span class="dot ${c}"></span>${esc(t)} · ${esc(q.account)}</div></div></div>`; }).join("")}</div></div>` : ""}
-    <div class="sec"><h2>Latest slideshows</h2><div class="grid g2">${v.drafts.slice(0, 4).map((d) => slideshowCard(d)).join("") || `<div class="card empty">No slideshows yet. Ask Claude to remake a format for this app.</div>`}</div></div>`;
-  bindCards(el);
-  const sa = $("#scheduleAll"); if (sa) sa.onclick = async () => { try { const r = await api("/api/fill", {}); toast(r.scheduled.length ? `Scheduled ${r.scheduled.length} slideshow${r.scheduled.length > 1 ? "s" : ""}` : "Nothing scheduled: turn autopilot on in Schedule"); await refresh(); } catch (e) { toast(e.message, 1); } };
+    <div class="sec"><h2>Up Next<span class="sub">${waiting} approved · ${empty} open slots</span><span class="sp"></span><button class="btn sm" id="scheduleAll" ${waiting ? "" : "disabled"}>Schedule Approved</button></h2>
+      <div class="list">${upcoming.length ? upcoming.map((s) => rowStatus(s.item.draft.title, s.item.draft.previews[0], "", `${when(s.at)} · ${s.acc}`)).join("") : `<div class="empty">Nothing scheduled. Approve a slideshow, then choose <b>Schedule Approved</b>.</div>`}</div></div>
+    ${v.recent.length ? `<div class="sec"><h2>Recent</h2><div class="list">${v.recent.map((q) => { const [c, s] = status(q); return rowStatus(q.draft.title, q.draft.previews[0], c, `${s} · ${q.account}`); }).join("")}</div></div>` : ""}
+    <div class="sec"><h2>Latest Slideshows</h2><div class="cards">${v.drafts.slice(0, 3).map(card).join("") || `<div class="card empty">No slideshows yet.</div>`}</div></div>`;
+  bind(el);
+  const sa = $("#scheduleAll"); if (sa) sa.onclick = async () => { try { const r = await api("/api/fill", {}); toast(r.scheduled.length ? `Scheduled ${r.scheduled.length} slideshow${r.scheduled.length > 1 ? "s" : ""}` : "Turn on Autopilot in Schedule first"); await refresh(); } catch (e) { toast(e.message, 1); } };
 }
 
 function slideshows() {
-  const el = $("#tab"), v = state.view;
-  el.innerHTML = `<h2>Slideshows<span class="sp"></span><span class="muted" style="font-weight:400">${v.drafts.length} total</span></h2>
-    <div class="grid g2">${v.drafts.map((d) => slideshowCard(d)).join("") || `<div class="card empty">No slideshows yet.</div>`}</div>`;
-  bindCards(el);
+  const v = state.view, el = $("#tab");
+  el.innerHTML = `<h2>Slideshows<span class="sub">${v.drafts.length}</span></h2><div class="cards">${v.drafts.map(card).join("") || `<div class="card empty">No slideshows yet. Ask Claude to remake a format for this app.</div>`}</div>`;
+  bind(el);
 }
 
 function formats() {
-  const el = $("#tab"), v = state.view;
-  el.innerHTML = `<h2>Formats we use</h2><div class="grid">${v.formats.map((f) => `<div class="card">
-    <div class="row" style="margin-bottom:6px"><span class="chip ${f.status === "active" ? "g" : f.status === "testing" ? "y" : ""}">${esc(f.status)}</span><b>${esc(f.name)}</b><span class="muted">· ${f.slideCount} slides · ${f.drafts.length} made</span></div>
-    <div style="font-size:16px;font-weight:600;margin:6px 0">“${esc(f.hook)}”</div>
-    <div class="muted" style="margin-bottom:10px">${esc(f.description)}${f.sourceStats ? ` <br>Source: ${esc(f.sourceStats)}` : ""}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div><div class="muted" style="font-size:12px;margin-bottom:6px">Original</div>${f.sourceSheet ? `<img data-zoom src="${file(f.sourceSheet)}" style="width:100%;border-radius:10px;cursor:zoom-in">` : `<div class="empty">—</div>`}</div>
-      <div><div class="muted" style="font-size:12px;margin-bottom:6px">Our latest</div>${f.latest?.previews.length ? `<div class="slides" style="margin:0">${f.latest.previews.map((p) => `<img src="${file(p)}" style="aspect-ratio:${f.latest.aspect === "3:4" ? "3/4" : "9/16"}">`).join("")}</div>` : `<div class="empty">Not made yet</div>`}</div>
-    </div>
-    ${f.notes ? `<div class="note" style="margin-top:12px">${esc(f.notes)}</div>` : ""}</div>`).join("") || `<div class="card empty">No formats saved for this app yet.</div>`}</div>`;
+  const v = state.view, el = $("#tab");
+  el.innerHTML = `<h2>Formats</h2>` + (v.formats.map((f) => `<div class="card sec">
+    <div class="row" style="margin-bottom:8px"><span class="pill ${f.status === "active" ? "g" : f.status === "testing" ? "o" : ""}">${esc(f.status[0].toUpperCase() + f.status.slice(1))}</span><span class="muted small">${f.slideCount} slides · ${f.drafts.length} made${f.sourceStats ? " · " + esc(f.sourceStats) : ""}</span></div>
+    <div style="font-size:19px;font-weight:600;letter-spacing:-.02em">${esc(f.name)}</div>
+    <div class="muted" style="margin:4px 0 2px">“${esc(f.hook)}”</div>
+    <div class="compare">
+      <div><div class="lbl">Original</div>${f.sourceSheet ? `<img class="sheet" src="${file(f.sourceSheet)}" alt="">` : `<div class="note">No source saved</div>`}</div>
+      <div><div class="lbl">Our latest</div>${f.latest?.previews.length ? `<div class="slides" style="margin:0">${f.latest.previews.map((p) => `<img src="${file(p)}" style="aspect-ratio:${ratio(f.latest)}">`).join("")}</div>` : `<div class="note">Not made yet</div>`}</div>
+    </div>${f.notes ? `<div class="note" style="margin-top:14px">${esc(f.notes)}</div>` : ""}</div>`).join("") || `<div class="card empty">No formats saved for this app yet.</div>`);
 }
 
 function schedule() {
-  const el = $("#tab"), v = state.view;
+  const v = state.view, el = $("#tab");
   el.innerHTML = v.accounts.map((acc) => {
     const ap = acc.plan || { enabled: false, times: ["08:30", "18:00"], mode: "draft" };
-    let last = "";
-    const slots = (v.schedule[acc.name] || []).map((s) => {
-      const d = new Date(s.at).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short", timeZone: tz() });
-      const head = d !== last ? `<div class="day">${esc(d)}</div>` : ""; last = d;
+    let last = "", rows = "";
+    for (const s of v.schedule[acc.name] || []) {
+      const d = new Date(s.at).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: tz() });
+      if (d !== last) { rows += (last ? `</div>` : "") + `<div class="li-head">${esc(d)}</div><div class="list">`; last = d; }
       const t = new Date(s.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: tz() });
-      return head + (s.item ? `<div class="slot"><div class="tm">${t}</div><img src="${file(s.item.draft.previews[0])}"><div class="t"><b>${esc(s.item.draft.title)}</b><div class="muted" style="font-size:12px">${esc(statusText({ ...s.item, at: s.at })[1])} · ${s.item.mode === "draft" ? "to inbox" : "direct"}</div></div>${s.item.status === "queued" ? `<button class="btn ghost sm" data-cancel="${esc(s.item.id)}">Cancel</button>` : ""}</div>`
-        : `<div class="slot empty"><div class="tm">${t}</div><div class="t">Empty: approve a slideshow to fill it</div></div>`);
-    }).join("");
-    return `<div class="card sec">
-      <h2>${esc(acc.name)} <span class="chip ${ap.enabled ? "g" : ""}">${ap.enabled ? "Autopilot on" : "Autopilot off"}</span></h2>
-      <div class="form" data-plan="${esc(acc.name)}" style="grid-template-columns:auto 1fr 1fr 1fr auto;align-items:end">
-        <label class="check" style="padding-bottom:8px"><input type="checkbox" name="enabled" ${ap.enabled ? "checked" : ""}> Autopilot</label>
-        <label class="f">Post times<input type="text" name="times" value="${esc(ap.times.join(", "))}"></label>
-        <label class="f">Mode<select name="mode"><option value="draft" ${ap.mode === "draft" ? "selected" : ""}>To TikTok inbox</option><option value="direct" ${ap.mode === "direct" ? "selected" : ""}>Direct post (after audit)</option></select></label>
-        <label class="f">Time zone<input type="text" name="timezone" value="${esc(tz())}"></label>
-        <button class="btn ghost" data-saveplan="${esc(acc.name)}">Save</button>
+      rows += s.item ? `<div class="li"><div class="tm">${t}</div><img class="th" src="${file(s.item.draft.previews[0])}"><div class="main"><div class="t">${esc(s.item.draft.title)}</div><div class="s">${esc(status({ ...s.item, at: s.at })[1])} · ${s.item.mode === "draft" ? "to inbox" : "direct"}</div></div>${s.item.status === "queued" ? `<button class="btn plain sm" data-cancel="${esc(s.item.id)}">Cancel</button>` : ""}</div>`
+        : `<div class="li open"><div class="tm">${t}</div><div class="main">Open slot</div></div>`;
+    }
+    if (last) rows += `</div>`;
+    return `<div class="sec">
+      <h2>${esc(acc.stats?.displayName || acc.name)}<span class="sub">${esc(acc.name)}</span></h2>
+      <div class="list" data-plan="${esc(acc.name)}">
+        <div class="li"><div class="main"><div class="t">Autopilot</div><div class="s">Fills open slots with approved slideshows</div></div><label class="switch"><input type="checkbox" name="enabled" ${ap.enabled ? "checked" : ""}><span></span></label></div>
+        <div class="li"><div class="main"><div class="t">Times</div></div><input type="text" name="times" value="${esc(ap.times.join(", "))}" style="max-width:200px;text-align:right"></div>
+        <div class="li"><div class="main"><div class="t">Post as</div></div><select name="mode" style="max-width:240px"><option value="draft" ${ap.mode === "draft" ? "selected" : ""}>Draft in TikTok inbox</option><option value="direct" ${ap.mode === "direct" ? "selected" : ""}>Direct post (after audit)</option></select></div>
+        <div class="li"><div class="main"><div class="t">Time zone</div></div><input type="text" name="timezone" value="${esc(tz())}" style="max-width:200px;text-align:right"></div>
+        <div class="li"><div class="main"></div><button class="btn sm" data-saveplan="${esc(acc.name)}">Save</button></div>
       </div>
-      ${slots || `<div class="empty">No upcoming slots</div>`}
+      ${rows || `<div class="empty">No upcoming slots</div>`}
     </div>`;
-  }).join("") || `<div class="card empty">Connect a TikTok account to this app in Accounts first.</div>`;
+  }).join("") || `<div class="card empty">Add a TikTok account to this app in Accounts.</div>`;
   el.querySelectorAll("[data-saveplan]").forEach((b) => b.onclick = async () => {
     const f = el.querySelector(`[data-plan="${b.dataset.saveplan}"]`);
-    try { await api("/api/plan", { account: b.dataset.saveplan, enabled: f.querySelector("[name=enabled]").checked, times: f.querySelector("[name=times]").value.split(",").map((s) => s.trim()).filter(Boolean), mode: f.querySelector("[name=mode]").value, timezone: f.querySelector("[name=timezone]").value.trim() }); toast("Plan saved"); await refresh(); } catch (e) { toast(e.message, 1); }
+    try { await api("/api/plan", { account: b.dataset.saveplan, enabled: f.querySelector("[name=enabled]").checked, times: f.querySelector("[name=times]").value.split(",").map((s) => s.trim()).filter(Boolean), mode: f.querySelector("[name=mode]").value, timezone: f.querySelector("[name=timezone]").value.trim() }); toast("Saved"); await refresh(); } catch (e) { toast(e.message, 1); }
   });
-  bindCards(el);
+  bind(el);
 }
 
 function accounts() {
-  const el = $("#tab"), v = state.view, a = v.app;
+  const v = state.view, a = v.app, el = $("#tab");
   const free = v.connectedAccounts.filter((n) => !a.accounts.includes(n));
   el.innerHTML = v.accounts.map((acc) => {
-    const s = acc.stats; const posts = s?.posts || [];
-    const max = Math.max(1, ...posts.map((p) => p.views));
-    const chron = posts.slice().sort((x, y) => (x.createdAt || "").localeCompare(y.createdAt || "")).slice(-60);
-    return `<div class="card sec">
-      <div class="row" style="margin-bottom:12px">${s?.avatar ? `<img src="${esc(img(s.avatar))}" style="width:40px;height:40px;border-radius:50%">` : ""}
-        <div style="flex:1"><b>${esc(s?.displayName || acc.name)}</b><div class="muted" style="font-size:12px">${s?.username ? "@" + esc(s.username) + " · " : ""}${s?.syncedAt ? "synced " + when(s.syncedAt) : "not synced"}${acc.connected ? "" : " · not connected"}</div></div>
-        <button class="btn sm" data-sync="${esc(acc.name)}">Sync stats</button></div>
-      <div class="kpis"><div class="kpi"><div class="v">${fmt(s?.profile?.followers)}</div><div class="l">Followers</div></div><div class="kpi"><div class="v">${fmt(s?.profile?.likes)}</div><div class="l">Likes</div></div><div class="kpi"><div class="v">${fmt(posts.reduce((n, p) => n + p.views, 0))}</div><div class="l">Views tracked</div></div><div class="kpi"><div class="v">${fmt(posts.length ? Math.round(posts.reduce((n, p) => n + p.views, 0) / posts.length) : null)}</div><div class="l">Avg / post</div></div></div>
-      ${chron.length > 1 ? `<div class="bars">${chron.map((p) => `<i class="${p.format ? "us" : ""}" style="height:${Math.max(3, p.views / max * 100)}%" title="${p.views} views"></i>`).join("")}</div>` : ""}
-      ${posts.length ? `<div class="posts">${posts.slice(0, 18).map((p) => `<a class="post" href="${esc(p.url)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(img(p.cover))}" onerror="this.style.visibility='hidden'"><div class="s"><b>${fmt(p.views)}</b> views · ♥ ${fmt(p.likes)}${p.saves != null ? ` · 🔖 ${fmt(p.saves)}` : ""}</div></a>`).join("")}</div>` : `<div class="empty">Press Sync stats to pull this account's numbers.</div>`}
+    const s = acc.stats, posts = s?.posts || [], total = posts.reduce((n, p) => n + p.views, 0);
+    const chron = posts.slice().sort((x, y) => (x.createdAt || "").localeCompare(y.createdAt || "")).slice(-60), max = Math.max(1, ...posts.map((p) => p.views));
+    return `<div class="sec">
+      <div class="row" style="margin-bottom:14px">${s?.avatar ? `<img src="${esc(img(s.avatar))}" style="width:44px;height:44px;border-radius:50%">` : ""}
+        <div style="flex:1"><div style="font-size:20px;font-weight:600;letter-spacing:-.02em">${esc(s?.displayName || acc.name)}</div><div class="muted small">${s?.username ? "@" + esc(s.username) + " · " : ""}${s?.syncedAt ? "Updated " + when(s.syncedAt) : "Not synced yet"}</div></div>
+        <button class="btn gray sm" data-sync="${esc(acc.name)}">Refresh Stats</button></div>
+      <div class="kpis"><div class="kpi"><div class="l">Followers</div><div class="v">${fmt(s?.profile?.followers)}</div></div><div class="kpi"><div class="l">Likes</div><div class="v">${fmt(s?.profile?.likes)}</div></div><div class="kpi"><div class="l">Views</div><div class="v">${fmt(total)}</div></div><div class="kpi"><div class="l">Average</div><div class="v">${fmt(posts.length ? Math.round(total / posts.length) : null)}</div></div></div>
+      ${chron.length > 1 ? `<div class="chart">${chron.map((p) => `<i class="${p.format ? "us" : ""}" style="height:${Math.max(4, p.views / max * 100)}%" title="${p.views} views"></i>`).join("")}</div><div class="muted small" style="margin-bottom:18px">Views per post, oldest to newest${chron.some((p) => p.format) ? ". Blue: made with Slideflow" : ""}</div>` : ""}
+      ${posts.length ? `<div class="posts">${posts.slice(0, 18).map((p) => `<a class="post" href="${esc(p.url)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(img(p.cover))}" onerror="this.style.visibility='hidden'"><div class="s"><b>${fmt(p.views)}</b> views · ${fmt(p.likes)} likes${p.saves != null ? ` · ${fmt(p.saves)} saves` : ""}</div></a>`).join("")}</div>` : `<div class="card empty">Refresh to pull this account's posts.</div>`}
     </div>`;
-  }).join("") + `<div class="card"><h2>Add an account to ${esc(a.name.split(":")[0])}</h2>
-    ${free.length ? `<div class="row"><select id="freeAcc" style="max-width:240px">${free.map((n) => `<option>${esc(n)}</option>`).join("")}</select><button class="btn" id="linkAcc">Add</button></div>` : `<div class="muted">All connected TikTok accounts are already assigned.</div>`}
-    <hr><div class="row"><input type="text" id="connName" placeholder="Name for the account, e.g. myapp-uk" style="max-width:260px"><button class="btn" id="connect">Connect a TikTok account</button></div>
-    <div class="muted" style="font-size:12px;margin-top:8px">Opens TikTok in your browser. Log in and approve, and the account is added to this app.</div></div>`;
-  el.querySelectorAll("[data-sync]").forEach((b) => b.onclick = async () => { b.disabled = true; b.textContent = "Syncing…"; try { await api("/api/sync?account=" + b.dataset.sync, {}); toast("Stats updated"); await refresh(); } catch (e) { toast(e.message, 1); b.disabled = false; b.textContent = "Sync stats"; } });
+  }).join("") + `<div class="sec"><h2>Add Account</h2><div class="list">
+      ${free.length ? `<div class="li"><div class="main"><div class="t">Connected account</div></div><select id="freeAcc" style="max-width:200px">${free.map((n) => `<option>${esc(n)}</option>`).join("")}</select><button class="btn sm" id="linkAcc">Add</button></div>` : ""}
+      <div class="li"><div class="main"><div class="t">Connect a TikTok account</div><div class="s">Opens TikTok in your browser to log in and approve</div></div><input type="text" id="connName" placeholder="Name, e.g. myapp-uk" style="max-width:180px"><button class="btn sm" id="connect">Connect</button></div>
+    </div></div>`;
+  el.querySelectorAll("[data-sync]").forEach((b) => b.onclick = async () => { b.disabled = true; b.textContent = "Refreshing…"; try { await api("/api/sync?account=" + b.dataset.sync, {}); toast("Stats updated"); await refresh(); } catch (e) { toast(e.message, 1); b.disabled = false; b.textContent = "Refresh Stats"; } });
   $("#connect").onclick = async () => {
-    const name = $("#connName").value.trim(); if (!name) return toast("Give the account a short name first", 1);
-    const b = $("#connect"); b.disabled = true; b.textContent = "Waiting for TikTok approval…";
+    const name = $("#connName").value.trim(); if (!name) return toast("Name the account first", 1);
+    const b = $("#connect"); b.disabled = true; b.textContent = "Waiting for TikTok…";
     try { const r = await api(`/api/connect?name=${encodeURIComponent(name)}&app=${encodeURIComponent(a.slug)}`, {}); toast(`Connected ${r.displayName}`); await refresh(); }
-    catch (e) { toast(e.message, 1); b.disabled = false; b.textContent = "Connect a TikTok account"; }
+    catch (e) { toast(e.message, 1); b.disabled = false; b.textContent = "Connect"; }
   };
   const l = $("#linkAcc"); if (l) l.onclick = async () => { try { await api("/api/app", { slug: a.slug, name: a.name, accounts: [...a.accounts, $("#freeAcc").value] }); toast("Account added"); await refresh(); } catch (e) { toast(e.message, 1); } };
 }
 
-const FIELDS = [["appStoreUrl", "App Store link", "url"], ["website", "Website", "url"], ["oneLiner", "What it does (one sentence)", "full"], ["howItWorks", "How it works for the user", "area"], ["audience", "Who it's for", "area"], ["markets", "Countries / languages / units", "area"], ["tone", "Slideshow voice", "area"], ["cta", "How the app appears (CTA)", "area"], ["avoid", "Never say / claim", "area"]];
+const FIELDS = [["appStoreUrl", "App Store link", "half"], ["website", "Website", "half"], ["oneLiner", "What it does", "line"], ["howItWorks", "How it works", "area"], ["audience", "Who it's for", "area"], ["markets", "Countries, languages and units", "area"], ["tone", "Voice", "area"], ["cta", "How the app appears in slideshows", "area"], ["avoid", "Never say or claim", "area"]];
 function profile() {
-  const el = $("#tab"), a = state.view.app;
-  const st = a.appStore;
-  el.innerHTML = `<div class="card sec">
-    <h2>App profile<span class="sp"></span><button class="btn ghost sm" id="autofill">Autofill from App Store</button></h2>
-    ${st ? `<div class="note" style="margin-bottom:12px">App Store: ${esc(st.category)} · ${st.rating ? st.rating.toFixed(1) + "★ (" + fmt(st.ratingCount) + ")" : "no ratings yet"} · ${esc(st.price || "")} · by ${esc(st.developer || "")}</div>` : ""}
-    <div class="form" id="pf">
-      <label class="f full">Name<input type="text" name="name" value="${esc(a.name)}"></label>
-      ${FIELDS.map(([k, l, t]) => `<label class="f ${t === "url" ? "" : "full"}">${l}${t === "area" ? `<textarea name="${k}">${esc(a[k])}</textarea>` : `<input type="text" name="${k}" value="${esc(a[k])}">`}</label>`).join("")}
-      <label class="f full">Key features (one per line)<textarea name="features">${esc((a.features || []).join("\n"))}</textarea></label>
-      <label class="f full">Hashtags<input type="text" name="hashtags" value="${esc((a.hashtags || []).join(" "))}"></label>
+  const a = state.view.app, st = a.appStore, el = $("#tab");
+  el.innerHTML = `<div class="sec"><h2>Profile<span class="sp"></span><button class="btn gray sm" id="autofill">Fill from App Store</button></h2>
+    ${st ? `<div class="note" style="margin-bottom:14px">${esc(st.category)} · ${st.rating ? st.rating.toFixed(1) + " stars, " + fmt(st.ratingCount) + " ratings" : "No ratings yet"} · ${esc(st.price || "")} · ${esc(st.developer || "")}</div>` : ""}
+    <div class="card"><div class="form" id="pf">
+      <label class="field full">Name<input type="text" name="name" value="${esc(a.name)}"></label>
+      ${FIELDS.map(([k, l, t]) => `<label class="field ${t === "half" ? "" : "full"}">${l}${t === "area" ? `<textarea name="${k}">${esc(a[k])}</textarea>` : `<input type="text" name="${k}" value="${esc(a[k])}">`}</label>`).join("")}
+      <label class="field full">Key features, one per line<textarea name="features">${esc((a.features || []).join("\n"))}</textarea></label>
+      <label class="field full">Hashtags<input type="text" name="hashtags" value="${esc((a.hashtags || []).join(" "))}"></label>
     </div>
-    <div class="row" style="margin-top:14px"><button class="btn" id="saveProfile">Save profile</button><span class="muted">Claude reads this before writing anything for ${esc(a.name.split(":")[0])}.</span></div>
-  </div>
-  <div class="card"><h2>Competitors<span class="sp"></span><button class="btn ghost sm" id="suggest">Suggest from App Store</button></h2>
-    <div id="comps">${(a.competitors || []).map((c, i) => `<div class="comp"><div style="flex:1"><div class="n">${esc(c.name)} ${c.tiktok ? `<span class="muted" style="font-weight:400">${esc(c.tiktok)}</span>` : ""}</div><div class="m">${esc(c.note || "")}${c.appStoreUrl ? ` · <a href="${esc(c.appStoreUrl)}" target="_blank">App Store</a>` : ""}</div></div><button class="btn ghost sm" data-rmc="${i}">Remove</button></div>`).join("") || `<div class="muted">No competitors yet.</div>`}</div>
-    <div id="sugg"></div></div>`;
-  const collect = () => { const f = $("#pf"); const o = { slug: a.slug }; f.querySelectorAll("[name]").forEach((x) => o[x.name] = x.value); o.features = o.features.split("\n").map((s) => s.trim()).filter(Boolean); o.hashtags = o.hashtags.split(/[\s,]+/).filter(Boolean).map((h) => h.startsWith("#") ? h : "#" + h); return o; };
-  $("#saveProfile").onclick = async () => { try { await api("/api/app", collect()); toast("Profile saved"); await refresh(); } catch (e) { toast(e.message, 1); } };
-  $("#autofill").onclick = async () => { const url = $("#pf [name=appStoreUrl]").value.trim(); if (!url) return toast("Paste the App Store link first", 1); try { const r = await api("/api/appstore", { url, slug: a.slug }); toast(r.stillToAsk.length ? `Filled. Still missing: ${r.stillToAsk.length} answers` : "Filled from the App Store"); await refresh(); } catch (e) { toast(e.message, 1); } };
-  el.querySelectorAll("[data-rmc]").forEach((b) => b.onclick = async () => { const comps = a.competitors.filter((_, i) => i !== +b.dataset.rmc); try { await api("/api/app", { slug: a.slug, name: a.name, competitors: comps }); await refresh(); } catch (e) { toast(e.message, 1); } });
-  $("#suggest").onclick = async () => { $("#sugg").innerHTML = `<div class="muted" style="padding-top:10px">Searching the App Store…</div>`; try { const s = await api("/api/competitors?slug=" + a.slug); $("#sugg").innerHTML = `<hr><div class="muted" style="font-size:12px;margin-bottom:4px">Suggestions: add the real competitors</div>` + s.map((c, i) => `<div class="comp"><div style="flex:1"><div class="n">${esc(c.name)}</div><div class="m">${c.rating ? c.rating.toFixed(1) + "★ · " + fmt(c.ratingCount) + " ratings · " : ""}${esc(c.note || "")}</div></div><button class="btn ghost sm" data-addc="${i}">Add</button></div>`).join(""); $("#sugg").querySelectorAll("[data-addc]").forEach((b) => b.onclick = async () => { const c = s[+b.dataset.addc]; try { await api("/api/app", { slug: a.slug, name: a.name, competitors: [...(a.competitors || []), c] }); await refresh(); toast("Competitor added"); } catch (e) { toast(e.message, 1); } }); } catch (e) { $("#sugg").innerHTML = ""; toast(e.message, 1); } };
+    <div class="row" style="margin-top:16px"><button class="btn" id="saveProfile">Save</button><span class="muted small">Claude reads this before writing anything for ${esc(a.name.split(":")[0])}.</span></div></div></div>
+    <div class="sec"><h2>Competitors<span class="sp"></span><button class="btn gray sm" id="suggest">Suggest from App Store</button></h2>
+      <div class="list">${(a.competitors || []).map((c, i) => `<div class="li"><div class="main"><div class="t">${esc(c.name)}${c.tiktok ? ` <span class="muted" style="font-weight:400">${esc(c.tiktok)}</span>` : ""}</div><div class="s">${esc(c.note || "")}${c.appStoreUrl ? ` · <a href="${esc(c.appStoreUrl)}" target="_blank">App Store</a>` : ""}</div></div><button class="btn plain sm" data-rmc="${i}">Remove</button></div>`).join("") || `<div class="empty">No competitors yet</div>`}</div>
+      <div id="sugg"></div></div>`;
+  const collect = () => { const o = { slug: a.slug }; $("#pf").querySelectorAll("[name]").forEach((x) => o[x.name] = x.value); o.features = o.features.split("\n").map((s) => s.trim()).filter(Boolean); o.hashtags = o.hashtags.split(/[\s,]+/).filter(Boolean).map((h) => h.startsWith("#") ? h : "#" + h); return o; };
+  $("#saveProfile").onclick = async () => { try { await api("/api/app", collect()); toast("Saved"); await refresh(); } catch (e) { toast(e.message, 1); } };
+  $("#autofill").onclick = async () => { const url = $("#pf [name=appStoreUrl]").value.trim(); if (!url) return toast("Paste the App Store link first", 1); try { const r = await api("/api/appstore", { url, slug: a.slug }); toast(r.stillToAsk.length ? `Filled in. ${r.stillToAsk.length} answers still missing` : "Filled in from the App Store"); await refresh(); } catch (e) { toast(e.message, 1); } };
+  el.querySelectorAll("[data-rmc]").forEach((b) => b.onclick = async () => { try { await api("/api/app", { slug: a.slug, name: a.name, competitors: a.competitors.filter((_, i) => i !== +b.dataset.rmc) }); await refresh(); } catch (e) { toast(e.message, 1); } });
+  $("#suggest").onclick = async () => {
+    $("#sugg").innerHTML = `<div class="muted small" style="padding:12px 4px">Searching the App Store…</div>`;
+    try {
+      const s = await api("/api/competitors?slug=" + a.slug);
+      $("#sugg").innerHTML = `<div class="li-head">Suggestions</div><div class="list">` + s.map((c, i) => `<div class="li"><div class="main"><div class="t">${esc(c.name)}</div><div class="s">${c.rating ? c.rating.toFixed(1) + " stars · " + fmt(c.ratingCount) + " ratings · " : ""}${esc(c.note || "")}</div></div><button class="btn gray sm" data-addc="${i}">Add</button></div>`).join("") + `</div>`;
+      $("#sugg").querySelectorAll("[data-addc]").forEach((b) => b.onclick = async () => { try { await api("/api/app", { slug: a.slug, name: a.name, competitors: [...(a.competitors || []), s[+b.dataset.addc]] }); await refresh(); toast("Added"); } catch (e) { toast(e.message, 1); } });
+    } catch (e) { $("#sugg").innerHTML = ""; toast(e.message, 1); }
+  };
 }
 
-// ---------- add app ----------
+// ---------- sheets ----------
+function openSheet(html) { $("#sheet").innerHTML = html; $("#scrim").classList.add("on"); }
+function closeSheet() { $("#scrim").classList.remove("on"); }
+$("#scrim").addEventListener("click", (e) => { if (e.target.id === "scrim") closeSheet(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
+
 function openAddApp() {
-  $("#sheet").innerHTML = `<h3>Add an app</h3><p class="muted" style="margin-bottom:14px">Paste the App Store link and most of the profile fills in by itself. You (or Claude) can answer the rest later.</p>
-    <div class="form"><label class="f full">App Store link (optional)<input type="url" id="naUrl" placeholder="https://apps.apple.com/app/id…"></label>
-    <label class="f full">App name<input type="text" id="naName" placeholder="Filled from the App Store if you paste a link"></label></div>
-    <div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn ghost" id="naCancel">Cancel</button><button class="btn" id="naGo">Create app</button></div>`;
-  $("#modal").classList.add("on");
-  $("#naCancel").onclick = closeModal;
+  openSheet(`<div class="hd"><h3>Add App</h3><div class="muted small" style="margin-top:4px">Paste the App Store link and most of the profile fills in automatically.</div></div>
+    <div class="bd"><div class="form"><label class="field full">App Store link<input type="url" id="naUrl" placeholder="https://apps.apple.com/app/id…"></label><label class="field full">Name<input type="text" id="naName" placeholder="Optional with an App Store link"></label></div></div>
+    <div class="ft"><button class="btn gray" onclick="closeSheet()">Cancel</button><button class="btn" id="naGo">Add</button></div>`);
   $("#naGo").onclick = async () => {
     const url = $("#naUrl").value.trim(), name = $("#naName").value.trim();
     if (!url && !name) return toast("Add a name or an App Store link", 1);
-    $("#naGo").disabled = true; $("#naGo").textContent = url ? "Reading the App Store…" : "Creating…";
+    const b = $("#naGo"); b.disabled = true; b.textContent = url ? "Reading App Store…" : "Adding…";
     try {
       let slug;
       if (url) { const r = await api("/api/appstore", { url }); slug = r.app.slug; if (name) await api("/api/app", { slug, name }); }
       else slug = (await api("/api/app", { name })).slug;
-      closeModal(); state.slug = slug; state.tab = "profile"; persist(); await refresh(); toast("App added. Check the profile");
-    } catch (e) { toast(e.message, 1); $("#naGo").disabled = false; $("#naGo").textContent = "Create app"; }
+      closeSheet(); state.slug = slug; state.tab = "profile"; persist(); await refresh(); toast("App added");
+    } catch (e) { toast(e.message, 1); b.disabled = false; b.textContent = "Add"; }
   };
 }
-function closeModal() { $("#modal").classList.remove("on"); }
-$("#modal").addEventListener("click", (e) => { if (e.target.id === "modal") closeModal(); });
 
-// ---------- post / schedule (TikTok Content Sharing Guidelines UX) ----------
+// Post screen built to TikTok's Content Sharing Guidelines (required for the Direct Post audit).
 const PRIV = { PUBLIC_TO_EVERYONE: "Everyone", MUTUAL_FOLLOW_FRIENDS: "Friends", FOLLOWER_OF_CREATOR: "Followers", SELF_ONLY: "Only me" };
 async function openPost(draftId) {
   const v = state.view, d = v.drafts.find((x) => x.id === draftId);
   if (!v.accounts.length) return toast("Add a TikTok account to this app first", 1);
-  const acc0 = v.accounts[0].name;
-  $("#sheet").innerHTML = `<h3>Post to TikTok</h3>
-    <div class="row muted" style="margin-bottom:10px">Account <select id="pAcc" style="width:auto">${v.accounts.map((a) => `<option>${esc(a.name)}</option>`).join("")}</select><span id="pCreator">Loading account…</span></div>
-    <div class="strip">${d.renders.map((p) => `<img src="${file(p)}" alt="">`).join("")}</div>
-    <div class="form">
-      <label class="f full">Title<input type="text" id="pTitle" maxlength="90" value="${esc(d.title)}"></label>
-      <label class="f full">Caption & hashtags<textarea id="pCap" maxlength="4000">${esc(d.caption)}</textarea></label>
-      <label class="f">How to post<select id="pMode"><option value="draft">Send to my TikTok inbox</option><option value="direct">Publish directly</option></select></label>
-      <label class="f">When<select id="pWhenType"><option value="now">Now</option><option value="at">Schedule for…</option></select></label>
-      <label class="f full" id="pAtWrap" style="display:none">Date & time<input type="datetime-local" id="pAt"></label>
-    </div>
-    <div id="pDirect" style="display:none"><hr>
+  openSheet(`<div class="hd"><h3>Post to TikTok</h3><div class="row muted small" style="margin-top:6px"><select id="pAcc" style="width:auto;padding:4px 8px;font-size:13px">${v.accounts.map((a) => `<option>${esc(a.name)}</option>`).join("")}</select><span id="pCreator">Loading account…</span></div></div>
+    <div class="bd">
+      <div class="strip">${d.renders.map((p) => `<img src="${file(p)}" alt="">`).join("")}</div>
       <div class="form">
-        <label class="f">Who can view this post<select id="pPriv"><option value="" selected disabled>Select…</option></select></label>
-        <div style="display:flex;flex-direction:column;gap:8px;justify-content:flex-end"><label class="check" id="pComWrap"><input type="checkbox" id="pCom"> Allow comments</label></div>
+        <label class="field full">Title<input type="text" id="pTitle" maxlength="90" value="${esc(d.title)}"></label>
+        <label class="field full">Caption<textarea id="pCap" maxlength="4000">${esc(d.caption)}</textarea></label>
+        <label class="field">Post as<select id="pMode"><option value="draft">Draft in TikTok inbox</option><option value="direct">Direct post</option></select></label>
+        <label class="field">When<select id="pWhenType"><option value="now">Now</option><option value="at">Later…</option></select></label>
+        <label class="field full" id="pAtWrap" style="display:none">Date and time<input type="datetime-local" id="pAt"></label>
+      </div>
+      <div id="pDirect" style="display:none"><hr>
+        <div class="form">
+          <label class="field">Who can view this post<select id="pPriv"><option value="" selected disabled>Select</option></select></label>
+          <div style="display:flex;align-items:flex-end;padding-bottom:9px"><label class="check" id="pComWrap"><input type="checkbox" id="pCom"> Allow comments</label></div>
+        </div>
+        <hr>
+        <div class="row" style="justify-content:space-between"><div><div style="font-weight:500">Disclose commercial content</div><div class="muted small" style="max-width:440px">Turn on to disclose that this content promotes goods or services in exchange for something of value. You need to indicate if your content promotes yourself, a third party, or both.</div></div><label class="switch"><input type="checkbox" id="pComm"><span></span></label></div>
+        <div id="pCommOpts" style="display:none;margin-top:12px">
+          <label class="check"><input type="checkbox" id="pYour"> Your brand <span class="muted small">You're promoting yourself or your own business</span></label>
+          <label class="check" style="margin-top:8px" id="pBrandWrap"><input type="checkbox" id="pBrand"> Branded content <span class="muted small">You're promoting another brand or a third party</span></label>
+          <div class="note" id="pLabel" style="margin-top:10px;display:none"></div>
+        </div>
       </div>
       <hr>
-      <label class="check"><input type="checkbox" id="pComm"> Disclose commercial content</label>
-      <div class="muted" style="font-size:12px;margin:4px 0 0 26px">Turn on to disclose that this content promotes goods or services in exchange for something of value. You need to indicate if your content promotes yourself, a third party, or both.</div>
-      <div id="pCommOpts" style="display:none;margin:10px 0 0 26px">
-        <label class="check"><input type="checkbox" id="pYour"> Your brand <span class="muted">· you are promoting yourself or your own business</span></label>
-        <label class="check" style="margin-top:6px" id="pBrandWrap"><input type="checkbox" id="pBrand"> Branded content <span class="muted">· you are promoting another brand or a third party</span></label>
-        <div class="note" id="pLabel" style="margin-top:8px;display:none"></div>
-      </div>
+      <div class="note" id="pInboxNote">TikTok sends this to your inbox. Open the notification to add a sound and publish. Up to 5 pending drafts per 24 hours.</div>
+      <div class="note" id="pDirectNote" style="display:none">After you post, it can take a few minutes to process and appear on your profile. Until the app passes TikTok's audit, direct posts are visible only to you.</div>
+      <p class="legal" id="pLegal" style="margin-top:12px"></p>
     </div>
-    <hr>
-    <div class="note" id="pInboxNote">You'll get a notification in your TikTok inbox. Tap it to add a sound and publish. TikTok allows at most 5 pending inbox posts per 24 hours.</div>
-    <div class="note" id="pDirectNote" style="display:none">After you publish, it may take a few minutes for the post to process and appear on your profile. Direct posts stay private (Only me) until the TikTok app passes its audit.</div>
-    <p class="legal" id="pLegal" style="margin-top:12px"></p>
-    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn ghost" id="pCancel">Cancel</button><button class="btn" id="pGo">Send to inbox</button></div>`;
-  $("#modal").classList.add("on");
+    <div class="ft"><button class="btn gray" id="pCancel">Cancel</button><button class="btn" id="pGo">Send to Inbox</button></div>`);
   const s = (id) => $("#" + id);
   let creator = null;
   async function loadCreator() {
     s("pCreator").textContent = "Loading account…";
     try {
       creator = await api("/api/creator?account=" + encodeURIComponent(s("pAcc").value));
-      s("pCreator").innerHTML = `Posting to <b style="color:var(--text)">${esc(creator.creator_nickname)}</b> (@${esc(creator.creator_username)})`;
-      s("pPriv").innerHTML = `<option value="" selected disabled>Select…</option>` + creator.privacy_level_options.map((o) => `<option value="${o}">${PRIV[o] || o}</option>`).join("");
+      s("pCreator").innerHTML = `Posting to <b style="color:var(--text)">${esc(creator.creator_nickname)}</b> @${esc(creator.creator_username)}`;
+      s("pPriv").innerHTML = `<option value="" selected disabled>Select</option>` + creator.privacy_level_options.map((o) => `<option value="${o}">${PRIV[o] || o}</option>`).join("");
       s("pCom").disabled = !!creator.comment_disabled; s("pComWrap").classList.toggle("dis", !!creator.comment_disabled);
     } catch (e) {
-      // Guidelines 1b: if the creator can't post right now, stop and ask them to try later.
-      creator = null;
-      s("pCreator").innerHTML = `<span style="color:var(--bad)">This account can't post right now (${esc(e.message)}). Please try again later.</span>`;
+      creator = null; // Guidelines 1b: stop and ask the user to try later
+      s("pCreator").innerHTML = `<span style="color:var(--red)">This account can't post right now. Try again later. (${esc(e.message)})</span>`;
     }
     update();
   }
@@ -425,10 +462,8 @@ async function openPost(draftId) {
     s("pDirect").style.display = direct ? "block" : "none";
     s("pInboxNote").style.display = direct ? "none" : "block"; s("pDirectNote").style.display = direct ? "block" : "none";
     s("pAtWrap").style.display = at ? "block" : "none";
-    const comm = s("pComm").checked; s("pCommOpts").style.display = comm ? "block" : "none";
-    const your = s("pYour").checked, brand = s("pBrand").checked;
-    // branded content can't be private
-    const priv = s("pPriv").value;
+    const comm = s("pComm").checked, your = s("pYour").checked, brand = s("pBrand").checked, priv = s("pPriv").value;
+    s("pCommOpts").style.display = comm ? "block" : "none";
     const onlyMe = s("pPriv").querySelector('option[value="SELF_ONLY"]');
     if (onlyMe) { onlyMe.disabled = comm && brand; onlyMe.title = comm && brand ? "Branded content visibility cannot be set to private." : ""; }
     s("pBrand").disabled = priv === "SELF_ONLY"; s("pBrandWrap").classList.toggle("dis", priv === "SELF_ONLY"); s("pBrandWrap").title = priv === "SELF_ONLY" ? "Branded content visibility cannot be set to private." : "";
@@ -441,11 +476,11 @@ async function openPost(draftId) {
     if (direct) ok = ok && !!priv && (!comm || your || brand);
     if (at) ok = ok && !!s("pAt").value;
     s("pGo").disabled = !ok;
-    s("pGo").textContent = at ? "Schedule" : direct ? "Post now" : "Send to inbox";
+    s("pGo").textContent = at ? "Schedule" : direct ? "Post" : "Send to Inbox";
     s("pGo").title = direct && comm && !your && !brand ? "You need to indicate if your content promotes yourself, a third party, or both." : "";
   }
   ["pMode", "pWhenType", "pPriv", "pComm", "pYour", "pBrand", "pAt"].forEach((id) => s(id).addEventListener("change", update));
-  s("pAcc").onchange = loadCreator; s("pCancel").onclick = closeModal;
+  s("pAcc").onchange = loadCreator; s("pCancel").onclick = closeSheet;
   s("pGo").onclick = async () => {
     s("pGo").disabled = true;
     const direct = s("pMode").value === "direct", at = s("pWhenType").value === "at";
@@ -453,22 +488,22 @@ async function openPost(draftId) {
       const r = await api("/api/post", { consent: true, draftId, account: s("pAcc").value, mode: direct ? "direct" : "draft", at: at ? new Date(s("pAt").value).toISOString() : null,
         title: s("pTitle").value, caption: s("pCap").value, privacy: direct ? s("pPriv").value : null, allowComment: direct && s("pCom").checked,
         commercial: direct && s("pComm").checked, brandOrganic: s("pYour").checked, brandedContent: s("pBrand").checked });
-      closeModal();
+      closeSheet();
       if (at) { toast(`Scheduled for ${when(r.scheduledAt)}`); await refresh(); return; }
       if (r.status === "failed") { toast("Failed: " + r.error, 1); await refresh(); return; }
-      toast(direct ? "Uploading to TikTok… it may take a few minutes to appear on your profile" : "Uploading to TikTok…");
-      pollStatus(r.id, direct);
+      toast(direct ? "Uploading. It can take a few minutes to appear on your profile" : "Uploading to TikTok…");
+      pollStatus(r.id);
     } catch (e) { toast(e.message, 1); s("pGo").disabled = false; }
   };
   loadCreator();
 }
 
-async function pollStatus(id, direct) {
+async function pollStatus(id) {
   for (let i = 0; i < 24; i++) {
     await new Promise((r) => setTimeout(r, 5000));
     try {
       const q = await api("/api/status?id=" + encodeURIComponent(id));
-      if (q.status === "done") { toast(q.tiktokStatus === "SEND_TO_USER_INBOX" ? "In your TikTok inbox: tap the notification to add a sound and publish" : "Published. It may take a few minutes to show on your profile"); break; }
+      if (q.status === "done") { toast(q.tiktokStatus === "SEND_TO_USER_INBOX" ? "In your TikTok inbox. Open it to add a sound and publish" : "Posted. It can take a few minutes to show on your profile"); break; }
       if (q.status === "failed") { toast("TikTok rejected it: " + (q.error || q.tiktokStatus || "unknown"), 1); break; }
     } catch (e) { toast(e.message, 1); break; }
   }

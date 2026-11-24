@@ -13,7 +13,9 @@
     "render:test": "tsx src/cli/render-test.ts",
     "typecheck": "tsc --noEmit",
     "dashboard": "tsx src/dashboard/server.ts",
-    "stats": "tsx src/cli/sync-stats.ts"
+    "stats": "tsx src/cli/sync-stats.ts",
+    "backup": "tsx src/cli/backup.ts backup",
+    "restore": "tsx src/cli/backup.ts restore"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1175.0",

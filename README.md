@@ -10,6 +10,50 @@ research (Apify or free scraper) → Claude studies slides + comments → patter
                                                               ↑ scheduler sends at the set time
 ```
 
+## How it works
+
+Slideflow has two halves that share one data folder (`library/`):
+
+| | What it's for | How you use it |
+|---|---|---|
+| **The dashboard** (`npm run dashboard` → http://localhost:5180) | Seeing and deciding: apps, accounts and stats, formats, slideshows, schedule, approving, posting | Click around in the browser |
+| **Your AI agent** (Claude Code, Codex, Claude Desktop…) connected to Slideflow's tools | The creative work: research, studying viral posts, remaking formats, writing text, finding images, rendering | Chat in plain words, e.g. *"Research slideshows for Picky and remake the best format"* |
+
+The agent does the work through Slideflow's MCP tools. Everything it makes appears in the dashboard,
+where you approve and post it. There's no chat inside the dashboard. You talk to your agent.
+
+### Use it with Claude Code (recommended)
+Open this folder in Claude Code (the desktop app's Code tab, or `claude` in a terminal). It loads
+`.mcp.json` (the tools) and `CLAUDE.md` (the workflow) automatically. Then just ask.
+
+### Use it with Codex
+Codex reads `AGENTS.md` (same instructions). Register the tools once:
+```bash
+codex mcp add slideflow -- npm --prefix /full/path/to/slideflow run --silent mcp
+```
+Then run `codex` inside this folder.
+
+### Use it with Claude Desktop (chat app) or another MCP client
+Add an MCP server whose command is `npm --prefix /full/path/to/slideflow run --silent mcp`.
+
+## Move to another computer
+
+1. On the old computer: `npm run backup`. This creates `slideflow-backup-YYYY-MM-DD.tar.gz` with
+   your `.env` keys and `library/` (accounts, apps, drafts, images, stats). **It contains secrets, so
+   keep it private.** Move it with AirDrop, iCloud Drive or a USB stick.
+2. On the new computer (needs Node.js 20+ and git):
+   ```bash
+   git clone https://github.com/anduciu234/slideflow.git && cd slideflow
+   npm install && npx playwright install chromium
+   npm run restore -- /path/to/slideflow-backup-YYYY-MM-DD.tar.gz
+   npm run dashboard
+   ```
+3. For publishing (Vercel image hosting): `cd site && npx vercel link --project slideflow-site`,
+   logged in to the same Vercel account.
+
+Works on macOS, Windows and Linux. The always-on background scheduler is macOS-only. On other
+systems, run `npm run scheduler` while you work.
+
 ## Quick start
 
 ```bash

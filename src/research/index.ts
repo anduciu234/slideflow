@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { env, PATHS, readJson, writeJson } from "../config.js";
+import { env, PATHS, readJson, relocate, writeJson } from "../config.js";
 import type { ResearchedSlideshow } from "../types.js";
 import { apifyResearch, type ResearchQuery } from "./apify.js";
 import { browserGetPost, browserResearch } from "./browser.js";
@@ -149,5 +149,6 @@ export function listResearch(): ResearchedSlideshow[] {
     .readdirSync(PATHS.research)
     .filter((d) => !d.startsWith("_"))
     .map((d) => readJson<ResearchedSlideshow | null>(path.join(PATHS.research, d, "post.json"), null))
-    .filter((x): x is ResearchedSlideshow => !!x);
+    .filter((x): x is ResearchedSlideshow => !!x)
+    .map((p) => ({ ...p, localImages: p.localImages.map(relocate) }));
 }

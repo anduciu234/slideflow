@@ -76,7 +76,10 @@ export async function loginAccount(name?: string): Promise<TikTokAccount> {
     });
     server.listen(Number(redirect.port || 80), () => {
       console.error(`Opening TikTok consent page…\nIf it doesn't open, visit:\n${auth}`);
-      execFile("open", [auth.toString()], () => {});
+      // open the consent page in the default browser (macOS / Windows / Linux)
+      const [cmd, args] =
+        process.platform === "darwin" ? ["open", [auth.toString()]] : process.platform === "win32" ? ["cmd", ["/c", "start", "", auth.toString()]] : ["xdg-open", [auth.toString()]];
+      execFile(cmd as string, args as string[], () => {});
     });
     setTimeout(() => {
       server.close();

@@ -19,3 +19,6 @@ site/slides/
 node_modules
 .DS_Store
 *.log
+
+# backups contain your keys and tokens
+slideflow-backup-*.tar.gz

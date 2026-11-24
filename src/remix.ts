@@ -5,15 +5,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { PATHS, readJson } from "./config.js";
+import { PATHS, readJson, relocate } from "./config.js";
 import { summarize } from "./research/index.js";
 import type { Draft, ResearchedSlideshow } from "./types.js";
 
 function slidesFor(id: string): { files: string[]; kind: "research" | "draft" } {
   const post = readJson<ResearchedSlideshow | null>(path.join(PATHS.research, id, "post.json"), null);
-  if (post) return { files: post.localImages, kind: "research" };
+  if (post) return { files: post.localImages.map(relocate), kind: "research" };
   const draft = readJson<Draft | null>(path.join(PATHS.drafts, `${id}.json`), null);
-  if (draft) return { files: draft.renders, kind: "draft" };
+  if (draft) return { files: draft.renders.map(relocate), kind: "draft" };
   throw new Error(`No research post or draft with id ${id}`);
 }
 
