@@ -1,0 +1,31 @@
+{
+  "name": "slideflow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Research viral TikTok slideshows, remake them for your app with Claude, and post them to TikTok.",
+  "scripts": {
+    "mcp": "tsx src/mcp.ts",
+    "tiktok:login": "tsx src/cli/tiktok-login.ts",
+    "research:login": "tsx src/cli/research-login.ts",
+    "scheduler": "tsx src/cli/scheduler.ts",
+    "scheduler:once": "tsx src/cli/scheduler.ts --once",
+    "render:test": "tsx src/cli/render-test.ts",
+    "typecheck": "tsc --noEmit",
+    "dashboard": "tsx src/dashboard/server.ts",
+    "stats": "tsx src/cli/sync-stats.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1175.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "dotenv": "^18.0.10",
+    "playwright": "^1.65.1",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

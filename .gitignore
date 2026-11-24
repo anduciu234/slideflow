@@ -1,0 +1,21 @@
+# --- secrets ---
+.env
+.env.*
+!.env.example
+site/.env.local
+site/.vercel
+.vercel
+
+# --- your data (accounts, tokens, research, drafts, app profiles, images) ---
+library/
+!library/README.md
+
+# --- personal / app-specific files ---
+brand/picky-avatar.png
+src/cli/offer-cards.ts
+site/slides/
+
+# --- build / OS ---
+node_modules
+.DS_Store
+*.log
